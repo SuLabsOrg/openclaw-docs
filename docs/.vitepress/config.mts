@@ -5,6 +5,7 @@ export default defineConfig({
   description:
     "Operational guide for deploying and managing AI employees with OpenClaw",
   lang: "zh-CN",
+  base: "/openclaw-docs/",
 
   themeConfig: {
     nav: [
