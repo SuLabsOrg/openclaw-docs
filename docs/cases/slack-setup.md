@@ -3,7 +3,7 @@
 ::: warning Draft
 这是第二个案例的证据优先草稿，不是最终验收稿。
 
-当前页面只记录“本机今天还能直接证明什么”以及“还缺什么 clean-room 证据”。不补写无法从当前 workspace 直接证明的 Slack App 创建细节，也不在文档中暴露任何 token。
+当前页面记录的边界已经更新为：Slack 双向通信的**技术路径已由本地证据包 + Slack API-visible audit 证明**；剩余 gap 如有，仅是 Slack client / admin clean-room artifact acceptance。不补写无法从当前 workspace、当前 token 或当前 artifact 直接证明的 Slack App 创建细节，也不在文档中暴露任何 token。
 :::
 
 ## 案例目标
@@ -104,6 +104,22 @@
 - 出站回复能够发回 DM
 - thread 回复会携带正确 `thread_ts` 发回原线程
 
+### 6. 当前 run 已补齐 Slack API-visible proof
+
+在上述本地证据包之外，本轮又补齐了一份只读 Slack API-visible audit，以及对应的 fresh QA review：
+
+- `/Users/sulabs_001/agent-worktrees/oh-my-openclaw-coder-a/workspace/heartbeat-okr5-case2-slack-api-gap-audit-20260320.md`
+- `/Users/sulabs_001/agent-worktrees/oh-my-openclaw-qa/workspace/heartbeat-okr5-case2-audit-review-20260320.md`
+
+这两份新证据把 Case 2 的技术事实边界进一步收口为：
+
+- `auth.test` 可证明 live token 绑定在目标 Slack workspace，bot user 为 `openclaw2`
+- `conversations.list` / `conversations.info` 可证明目标 DM / 公共频道对当前 token 可见，且 bot 在目标频道中是 member
+- `conversations.history` 可直接读到真实 DM 中的人类消息与 bot 回复
+- `conversations.replies` 可直接读到至少 1 条真实 thread 的 parent + 多条 bot reply
+
+因此，当前 Case 2 已不再存在“技术路径是否真的跑通”的 blocker；如果还有剩余 gap，也只是 reviewer 是否仍坚持要 Slack UI / admin clean-room artifact 作为最终验收形态。
+
 ## 当前可以安全写入文档的验证命令
 
 以下命令可以在不暴露 token 的前提下，验证本地 gateway 是否处于可工作的基础状态：
@@ -116,18 +132,30 @@ curl -sf http://127.0.0.1:27890/health
 curl -sf http://127.0.0.1:27890/status
 ```
 
-这些命令只能证明：
+如果要补齐当前 token 可见的 Slack API-visible 事实边界，还可以执行：
+
+```bash
+python3 .claude/skills/slack-workspace-inspector/scripts/slack_workspace_inspector.py list --limit 200
+python3 .claude/skills/slack-workspace-inspector/scripts/slack_workspace_inspector.py info --channel D0ACSGK4JE8
+python3 .claude/skills/slack-workspace-inspector/scripts/slack_workspace_inspector.py info --channel C0A8CA14KNE
+python3 .claude/skills/slack-workspace-inspector/scripts/slack_workspace_inspector.py history --channel D0ACSGK4JE8 --limit 6
+```
+
+这些命令组合起来可以证明：
 
 - binary / config 存在
 - gateway 活着
 - Slack channel 处于 enabled/running 状态
+- 当前 token 绑定在目标 Slack workspace
+- 目标 DM / 公共频道对当前 token 可见
+- 真实 DM 中的人类消息与 bot 回复可被当前 token 读取
 
-它们**不能单独证明**：
+但它们仍**不能替代**：
 
 - Slack App 创建过程正确
 - token 来源与安装流程正确
-- 入站消息真的已送达 Agent
-- Agent 回复真的已回到 Slack 客户端
+- Slack Admin 页面中的 OAuth / Socket Mode / Installed-to-Workspace artifact
+- Slack 客户端里的截图式验收画面
 
 ## 当前不应伪造的部分
 
@@ -152,11 +180,11 @@ curl -sf http://127.0.0.1:27890/status
 9. thread 路由验证
 10. 常见故障与排查
 
-当前阶段只完成了第 1、2、5、6 的“本机可证明部分”以及第 3、4、7、8、9 的缺口定义。
+当前阶段已经完成了第 1、2、5、6 的“本机可证明部分”，并通过本地证据包 + Slack API-visible audit 覆盖了第 7、8、9 的技术事实。当前真正还缺的，不再是消息链路能否跑通，而是第 3、4 对应的 Slack App admin artifact 与 Slack 客户端截图验收。
 
 ## 当前验收边界
 
-### 本地技术路径：已证明
+### 技术事实层：已证明
 
 当前 run 已经在本机上证明了以下链路：
 
@@ -166,14 +194,18 @@ curl -sf http://127.0.0.1:27890/status
 4. Slack 入站消息已被授权并路由到目标 workspace / `main`
 5. 出站回复已成功发回 DM
 6. thread 回复已携带正确 `thread_ts` 发回原 thread
+7. Slack API-visible surfaces 已证明 live token 归属、目标 DM / 频道可见、真实 DM reply 可见、至少 1 条真实 thread reply 可见
+8. fresh QA review 已明确将 Case 2 归类为 technically closed；不再存在剩余技术 blocker
 
 对应证据包：
 
 - `/Users/sulabs_001/agent-worktrees/oh-my-openclaw-coder-a/artifacts/okr5-kr3-case2-20260315-025655/00-acceptance-ready-bundle.md`
+- `/Users/sulabs_001/agent-worktrees/oh-my-openclaw-coder-a/workspace/heartbeat-okr5-case2-slack-api-gap-audit-20260320.md`
+- `/Users/sulabs_001/agent-worktrees/oh-my-openclaw-qa/workspace/heartbeat-okr5-case2-audit-review-20260320.md`
 
-### Slack 侧人工 / Admin 证据：仍缺
+### Slack 侧人工 / Admin artifact acceptance：如验收仍要求
 
-这个案例距离 full clean-room acceptance 只差 Slack 侧的人为截图 / 管理台记录：
+如果 reviewer 仍坚持以 Slack UI / admin clean-room capture 作为最终 artifact 形态，那么这个案例还差 Slack 侧的人为截图 / 管理台记录：
 
 1. Slack App 创建 / 安装 / OAuth 或 Socket Mode 配置记录
 2. Slack 客户端中可见的 inbound DM 或 thread 消息，以及同一对话中的 bot reply 截图
@@ -187,6 +219,7 @@ clean-room 复现时，至少采集以下证据：
 - 终端输出：fractalbot 启动日志，包含 Slack channel 启动成功或连接成功信息
 - 终端输出：`curl -sf http://127.0.0.1:27890/health`
 - 终端输出：`curl -sf http://127.0.0.1:27890/status`
+- 终端输出：Slack API-visible 只读验证结果，例如 `auth.test`、`conversations.list` / `info` / `history` / `replies`
 - Slack 客户端截图：发送一条 DM 或 channel 消息到 bot
 - 终端输出：对应时间点的 gateway / fractalbot 入站日志
 - 终端输出：对应时间点的 `agent-manager` / main session 收到任务或消息的日志
@@ -195,7 +228,7 @@ clean-room 复现时，至少采集以下证据：
 - Slack 客户端截图：至少一条 thread reply 成功回到原 thread
 - 终端输出：一次完整 clean-room 执行记录，按时间顺序串起配置、启动、health、入站、路由、出站、thread 验证
 
-其中，当前 run 已完成上面的所有本地终端证据；仍需补采的是以下 Slack 侧人工 / Admin 证据：
+其中，当前 run 已完成上面的本地终端证据与 Slack API-visible 技术证据；如果验收仍要求 screenshot/admin artifact 形态，仍需补采的是以下 Slack 侧人工 / Admin 证据：
 
 - 截图：Slack App 基本信息页，证明使用的是目标 App
 - 截图：Slack OAuth / Socket Mode 配置页，证明 Bot Token 与 App-Level Token 已生成
@@ -220,6 +253,8 @@ clean-room 复现时，至少采集以下证据：
 - `memory/2026-03-01.md`
 - `memory/2026-03-13.md`
 - `/Users/sulabs_001/agent-worktrees/oh-my-openclaw-coder-a/artifacts/okr5-kr3-case2-20260315-025655/`
+- `/Users/sulabs_001/agent-worktrees/oh-my-openclaw-coder-a/workspace/heartbeat-okr5-case2-slack-api-gap-audit-20260320.md`
+- `/Users/sulabs_001/agent-worktrees/oh-my-openclaw-qa/workspace/heartbeat-okr5-case2-audit-review-20260320.md`
 
 当前机器上的本地运行路径：
 
