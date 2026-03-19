@@ -65,7 +65,7 @@
 - 本机实际可用工具链下的最小运行闭环 evidence
 - 显式 source 的 official installer evidence
 
-Case 1 已不再是当前 `OKR-5 / KR3` 的 blocker；Case 2 当前也已无剩余技术 blocker。若按整体验收口径，当前只剩 Slack client / admin clean-room artifact acceptance。
+Case 1 已不再是当前 `OKR-5 / KR3` 的 blocker；Case 2 当前也已无剩余技术 blocker。按当前 source of truth，`KR3` 已技术完成；若后续仍要求 Slack client / admin clean-room artifact acceptance，应归入 `KR4`。
 
 ## 适用场景
 
@@ -432,7 +432,7 @@ fi
 - 显式 source 的 official installer 路径已至少拿到一次 `install -> doctor -> start/status/list` 的 clean-room 证据
 - 本机实际可用工具链下，已至少拿到一次 `doctor -> start -> heartbeat -> status/monitor` 的 clean-room runtime 证据
 
-就 Case 1 而言，它目前已经不再被 official installer 证据卡住；如果把 `OKR-5 / KR3` 当作整体验收，当前主要剩余 gap 只是 Case 2 的 Slack client / admin clean-room artifact acceptance，而不是技术链路 blocker。
+就 Case 1 而言，它目前已经不再被 official installer 证据卡住；按当前 `OKR-5` 边界，`KR3` 已技术完成。若还有 Case 2 的 Slack client / admin clean-room artifact acceptance，那是 `KR4` 的后续验收项，而不是 `KR3` 的技术 blocker。
 
 ## 最终验收检查表
 
@@ -461,11 +461,11 @@ fi
 3. fresh `start dev` / `status dev` / `list --running` 已成功
 4. 另有独立 runtime evidence pack 覆盖 `tmux capture-pane` / `heartbeat run` / post-heartbeat `status` / `monitor`
 
-### 当前 `OKR-5 / KR3` 剩余 blocker
+### 当前 `OKR-5` 后续项（`KR4` / doc-polish）
 
-1. Case 2 已无剩余技术 blocker；若 reviewer 仍要求 clean-room artifact 形态，则还需 Slack client / admin clean-room artifacts：App 创建/安装记录，以及 Slack UI 中 DM / thread 往返截图
-2. 如果要把本页再 polish 成单条“official installer -> heartbeat”顺序样例，可再补一轮把 install 与 heartbeat 串在同一条 clean-room 终端记录中；这属于 doc-polish follow-up，不再是当前 blocker
-3. 如果要声称 `SOUL.md` / `USER.md` 已被 runtime 实际消费，还需要 session start 读取证据
+1. `KR4`：若 reviewer 仍要求 clean-room artifact 形态，则还需 Slack client / admin clean-room artifacts：App 创建/安装记录，以及 Slack UI 中 DM / thread 往返截图
+2. Doc-polish follow-up：如果要把本页再 polish 成单条“official installer -> heartbeat”顺序样例，可再补一轮把 install 与 heartbeat 串在同一条 clean-room 终端记录中；这不再属于 `KR3` blocker
+3. Optional proof：如果要声称 `SOUL.md` / `USER.md` 已被 runtime 实际消费，还需要 session start 读取证据
 
 ### 如果还要额外宣称 cron 已安装，则另缺
 
